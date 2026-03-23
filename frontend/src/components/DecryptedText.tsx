@@ -37,7 +37,7 @@ export default function DecryptedText({
   const [isAnimating, setIsAnimating] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState(new Set());
   const [hasAnimated, setHasAnimated] = useState(false);
-  const [isDecrypted, setIsDecrypted] = useState(animateOn !== 'click');
+  const [isDecrypted, setIsDecrypted] = useState(animateOn === 'hover');
   const [direction, setDirection] = useState('forward');
 
   const containerRef = useRef<any>(null);
@@ -343,7 +343,7 @@ export default function DecryptedText({
   }, [animateOn, hasAnimated, triggerDecrypt]);
 
   useEffect(() => {
-    if (animateOn === 'click') {
+    if (animateOn === 'click' || animateOn === 'view') {
       encryptInstantly();
     } else {
       setDisplayText(text);

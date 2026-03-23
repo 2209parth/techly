@@ -1,24 +1,67 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Plasma from '@/components/Plasma';
 import DecryptedText from '@/components/DecryptedText';
-import GooeyNav from '@/components/GooeyNav';
+import MagicNav from '@/components/MagicNav';
+import MagicBento from '@/components/MagicBento';
+import ChromaGrid from '@/components/ChromaGrid';
+import TiltedCard from '@/components/TiltedCard';
+import CardSwap, { Card } from '@/components/CardSwap';
+import Dock from '@/components/Dock';
+import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse } from 'react-icons/vsc';
+
+// Hook for window size
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
+}
 
 export default function Home() {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
 
+  // Smooth scroll helper
+  const scrollTo = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
-    // Start fading out the splash screen after 2.5 seconds
+    // Start fading out the splash screen after 4 seconds (to accommodate 3s animation + buffer)
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 2800);
+    }, 4000);
 
-    // Remove it completely from DOM after 3.5 seconds
+    // Remove it completely from DOM after 5 seconds
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 3800);
+    }, 5000);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -118,6 +161,63 @@ await app.deploy({
 
 // Output: Techly Digital Experience initialized.`);
 
+  const chromaItems = [
+    {
+      image: "/founder_parth_patel.png",
+      title: "Parth Patel",
+      subtitle: "Founder",
+      handle: "@parthmk85",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    },
+    {
+      image: "https://i.pravatar.cc/300?img=12",
+      title: "Utsav",
+      subtitle: "CEO",
+      handle: "@utsavceo",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    },
+    {
+      image: "https://i.pravatar.cc/300?img=11",
+      title: "Kaushik",
+      subtitle: "CTO",
+      handle: "@kaushikcto",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    },
+    {
+      image: "https://i.pravatar.cc/300?img=68",
+      title: "Dhruv",
+      subtitle: "UI/UX Designer",
+      handle: "@dhruvdesign",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    },
+    {
+      image: "https://i.pravatar.cc/300?img=45",
+      title: "Netra",
+      subtitle: "Developer",
+      handle: "@netradev",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    },
+    {
+      image: "https://i.pravatar.cc/300?img=48",
+      title: "Madhvi",
+      subtitle: "Sales Manager",
+      handle: "@madhvisales",
+      borderColor: "#0065FF",
+      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
+      url: "#"
+    }
+  ];
+
   const [consoleLogs, setConsoleLogs] = useState([
     { type: 'system', message: '[SYSTEM] Ready to code. Techly Core v4.2.0 initialized successfully.' }
   ]);
@@ -169,14 +269,14 @@ await app.deploy({
       {showSplash && (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#000510] transition-opacity duration-1000 ${fadeSplash ? 'opacity-0' : 'opacity-100'}`}>
           <div className="absolute inset-0 bg-[#0065FF]/5 blur-[150px] pointer-events-none"></div>
-          <div className="text-2xl md:text-5xl font-black uppercase text-white drop-shadow-[0_0_15px_rgba(0,101,255,0.4)] z-10 font-mono tracking-widest text-center px-4">
+          <div className="text-2xl md:text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,101,255,0.4)] z-10 font-mono tracking-widest text-center px-4">
             <DecryptedText
-              text="lets build your dream"
-              speed={60}
-              maxIterations={15}
-              characters="ABCDE12345!@#$%"
+              text="Lets Build Your Dreams"
+              speed={135}
+              maxIterations={10}
+              characters="0123456789!@#$%^&*"
               animateOn="view"
-              revealDirection="center"
+              revealDirection="start"
               sequential={true}
             />
           </div>
@@ -188,36 +288,8 @@ await app.deploy({
          <img src="/reallogo.png" alt="Techly Logo" className="h-14 md:h-16 w-auto" />
       </a>
 
-      {/* Navbar Container */}
-      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-black/20 backdrop-blur-3xl border border-white/10 rounded-full px-4 md:px-6 py-2.5 flex items-center shadow-2xl">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="hidden md:block -mt-1">
-              <GooeyNav
-                items={[
-                  { label: "Home", href: "#" },
-                  { label: "Playground", href: "#playground" },
-                  { label: "Contact", href: "#contact" }
-                ]}
-              />
-            </div>
-            
-            <div className="flex items-center gap-4">
-               <a href="#contact" className="hidden lg:block text-sm font-bold tracking-wider uppercase hover:text-[#0065FF] transition-colors">Contact us</a>
-               <a href="#playground" className="flex items-center gap-2 bg-[#0065FF] text-white px-5 md:px-6 py-2.5 rounded-full font-black text-xs tracking-tighter uppercase hover:bg-[#0055dd] transition-all transform hover:scale-[1.05] active:scale-95 shadow-lg shadow-[#0065FF]/20">
-                 Get Started
-                 <div className="bg-white/20 p-1 rounded-full"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-               </a>
-               <button className="p-2.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors md:hidden">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-               </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
-      <header className="relative w-full h-screen overflow-hidden bg-[#000510]">
+      <header className="relative w-full h-screen overflow-hidden bg-[#000510]" id="home">
         <div className="absolute inset-0 z-0 opacity-40">
           <Plasma color="#0065FF" speed={0.3} direction="forward" scale={1.2} opacity={0.6} mouseInteractive={false} />
         </div>
@@ -231,7 +303,7 @@ await app.deploy({
 
             {/* Centered Content */}
             <div className="relative z-30 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col items-center">
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.95] max-w-4xl">
+              <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.95] max-w-4xl px-4">
                  <span className="text-white/90">We Build Digital Experiences </span>
                  <span className="text-[#0065FF]">That Grow Your Business.</span>
               </h1>
@@ -485,6 +557,98 @@ await app.deploy({
          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#0065FF]/3 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2"></div>
       </section>
 
+       {/* Feature Stack Section */}
+       <section className="relative py-32 px-4 md:px-8 bg-[#000510] overflow-hidden">
+          <div className="w-full max-w-7xl mx-auto px-8 lg:px-12">
+            <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
+               {/* Left Side: Header */}
+               <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start pb-12">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#0065FF]/10 border border-[#0065FF]/20 text-[#0065FF] text-[10px] font-black tracking-[0.2em] uppercase mb-8">
+                     <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF]"></div>
+                     Our Expertise
+                  </div>
+                  <h2 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-white mb-8 text-center lg:text-left leading-[0.85]">
+                     Our <br /> <span className="text-[#0065FF]">Services</span>
+                  </h2>
+                  <p className="text-white/40 text-sm font-medium uppercase tracking-[0.2em] max-w-xs text-center lg:text-left leading-relaxed">
+                     Transforming ideas into high-performance digital reality through elite engineering.
+                  </p>
+               </div>
+
+               {/* Right Side: CardSwap centered in its area */}
+               <div className="w-full lg:w-[55%] flex justify-center items-center py-20 min-h-[600px] relative overflow-visible">
+                  <CardSwap
+                    cardDistance={isMobile ? 25 : 40}
+                    verticalDistance={isMobile ? 35 : 50}
+                    delay={3000}
+                    width={isMobile ? 300 : isTablet ? 450 : 550}
+                    height={isMobile ? 280 : isTablet ? 320 : 380}
+                    pauseOnHover={true}
+                    containerClassName="mx-auto"
+                  >
+                    {[
+                      { title: 'Web Solutions', description: 'Bespoke Websites, Web Apps, and full-stack engineering.', label: 'Engineering', icon: <VscCode className="text-[#0065FF] text-2xl" /> },
+                      { title: 'App Ecosystems', description: 'Native iOS/Android apps and cross-platform experiences.', label: 'Mobile', icon: <VscCode className="text-[#0065FF] text-2xl" /> },
+                      { title: 'AI & Automation', description: 'Intelligent Chatbots, AI Movie Creation, and Business Automation.', label: 'Future Tech', icon: <VscPulse className="text-[#0065FF] text-2xl" /> },
+                      { title: 'Digital Authority', description: 'Global SEO, API Integrations, and 24/7 Maintenance Support.', label: 'Growth', icon: <VscMail className="text-[#0065FF] text-2xl" /> },
+                      { title: 'Value Sales', description: 'E-commerce, Course Selling, and High-ROI Digital Marketing.', label: 'Commerce', icon: <VscHome className="text-[#0065FF] text-2xl" /> },
+                      { title: 'Design Excellence', description: 'Elite UI/UX and Brand Graphic Design.', label: 'Creative', icon: <VscCode className="text-[#0065FF] text-2xl" /> }
+                    ].map((service, i) => (
+                      <Card key={i} className="p-10 border-[#0065FF]/30 bg-[#060010]/90 backdrop-blur-3xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col justify-center group">
+                        <div className="mb-6">
+                          <div className="w-12 h-12 rounded-xl bg-[#0065FF]/10 flex items-center justify-center mb-6 border border-[#0065FF]/20 group-hover:scale-110 transition-transform duration-500">
+                            {service.icon}
+                          </div>
+                          <span className="text-[#0065FF] text-[10px] font-black uppercase tracking-[0.3em] mb-3 block opacity-70">{service.label}</span>
+                          <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none">{service.title}</h3>
+                          <p className="text-sm text-white/50 leading-relaxed font-medium">{service.description}</p>
+                        </div>
+                        <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Solutions Series 2026</span>
+                          <div className="flex gap-1">
+                            {[...Array(3)].map((_, j) => (
+                              <div key={j} className={`w-1 h-1 rounded-full ${j === 0 ? 'bg-[#0065FF]' : 'bg-white/10'}`}></div>
+                            ))}
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </CardSwap>
+               </div>
+            </div>
+             </div>
+         
+         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#0065FF]/5 blur-[120px] rounded-full -translate-x-1/2 opacity-50 pointer-events-none"></div>
+      </section>
+            {/* Identity Section - Full Width ChromaGrid */}
+      <section id="identity" className="relative py-24 px-8 bg-[#000510] border-t border-white/5 overflow-hidden">
+         <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
+            <div className="flex flex-col items-center mb-4">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#0065FF]/10 border border-[#0065FF]/20 text-[#0065FF] text-[10px] font-black tracking-[0.2em] uppercase mb-6">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF]"></div>
+                The Visionaries
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white text-center leading-none">
+                Our <span className="text-[#0065FF]">Leadership</span> Team
+              </h2>
+            </div>
+            
+            <div className="w-full min-h-[600px] relative">
+               <ChromaGrid 
+                 items={chromaItems}
+                 radius={isMobile ? 200 : 300}
+                 damping={0.45}
+                 fadeOut={0.6}
+                 ease="power3.out"
+               />
+            </div>
+         </div>
+         
+         {/* Background Glow */}
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0065FF]/5 blur-[150px] rounded-full pointer-events-none"></div>
+      </section>
+   
+
       {/* Contact Section */}
       <section id="contact" className="relative py-32 px-8 bg-[#000510] overflow-hidden border-t border-white/5">
          {/* Background elements */}
@@ -529,7 +693,39 @@ await app.deploy({
                               type="tel" 
                               id="phone" 
                               name="phone" 
-                              placeholder="Enter your phone number" 
+                              required
+                              pattern="[0-9]{10}"
+                              maxLength={10}
+                              onInput={(e) => {
+                                 const target = e.currentTarget;
+                                 target.value = target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                              }}
+                              placeholder="10-digit phone number" 
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                           />
+                        </div>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                           <label htmlFor="business_name" className="text-xs font-bold uppercase tracking-widest text-gray-500">Business Name</label>
+                           <input 
+                              type="text" 
+                              id="business_name" 
+                              name="business_name" 
+                              required 
+                              placeholder="Your business or company" 
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <label htmlFor="business_type" className="text-xs font-bold uppercase tracking-widest text-gray-500">Business Type</label>
+                           <input 
+                              type="text" 
+                              id="business_type" 
+                              name="business_type" 
+                              required 
+                              placeholder="e.g. E-commerce, SaaS, Clinic" 
                               className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                            />
                         </div>
@@ -636,7 +832,7 @@ await app.deploy({
       </section>
 
       {/* Simple Footer */}
-      <footer className="py-20 px-8 border-t border-white/5 text-center text-gray-600 bg-[#000510]">
+      <footer className="py-20 px-8 border-t border-white/5 text-center text-gray-600 bg-[#000510] pb-32">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <img src="/reallogo.png" alt="Techly Logo" className="h-8 w-auto opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer" />
           <p className="text-[10px] tracking-[0.2em] font-bold uppercase">© 2026 TECHLY INTELLIGENCE. ALL RIGHTS RESERVED.</p>
@@ -646,6 +842,22 @@ await app.deploy({
           </div>
         </div>
       </footer>
+
+      {/* Apple-Style Navigation Dock */}
+      <div className="hidden md:block">
+        <Dock 
+          items={[
+            { icon: <VscHome size={20} />, label: 'Home', onClick: () => scrollTo('home') },
+            { icon: <VscBriefcase size={20} />, label: 'Services', onClick: () => scrollTo('services') },
+            { icon: <VscCode size={20} />, label: 'Playground', onClick: () => scrollTo('playground') },
+            { icon: <VscLayers size={20} />, label: 'Leadership', onClick: () => scrollTo('identity') },
+            { icon: <VscMail size={20} />, label: 'Contact', onClick: () => scrollTo('contact') },
+          ]}
+          panelHeight={68}
+          baseItemSize={54}
+          magnification={80}
+        />
+      </div>
     </main>
   );
 }
