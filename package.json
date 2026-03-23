@@ -1,0 +1,12 @@
+{
+  "name": "techly-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "echo 'Backend not implemented yet' && exit 1",
+    "build:frontend": "cd frontend && npm run build",
+    "start:frontend": "cd frontend && npm run start",
+    "lint:frontend": "cd frontend && npm run lint"
+  }
+}
