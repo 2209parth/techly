@@ -15,6 +15,26 @@ import Dock from '@/components/Dock';
 import LiquidDock from '@/components/LiquidDock';
 import ProfileCard from '@/components/ProfileCard';
 import WhyUs from '@/components/WhyUs';
+import { 
+  Plus, 
+  ArrowRight, 
+  ChevronRight, 
+  Check, 
+  Terminal, 
+  Cpu, 
+  Globe, 
+  Zap, 
+  Shield, 
+  MessageSquare, 
+  Code, 
+  Layers, 
+  Search, 
+  Menu, 
+  X, 
+  Send, 
+  Rocket
+} from 'lucide-react';
+import { FaGithub, FaTwitter, FaLinkedinIn } from 'react-icons/fa6';
 import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse, VscDeviceMobile, VscRobot, VscGraphLine, VscPackage, VscEdit, VscLink, VscGithub, VscSymbolMethod, VscSymbolColor } from 'react-icons/vsc';
 
 // Hook for window size
@@ -876,6 +896,79 @@ await app.deploy({
             </div>
          </div>
       </section>
+      
+      {/* Footer & SEO Content */}
+      <footer className="relative py-20 px-8 bg-[#000510] border-t border-white/5">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+               <img src="/reallogo.png" alt="Techly Logo" className="h-8 w-auto" />
+               <span className="text-xl font-black tracking-tighter text-white uppercase italic">Techly</span>
+            </div>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              We build digital experiences that grow your business with predictive intelligence and elite engineering.
+            </p>
+          </div>
+          
+          <div className="space-y-6">
+            <h4 className="text-white font-black tracking-widest text-xs uppercase">Quick Links</h4>
+            <div className="flex flex-col gap-3">
+              <button onClick={() => scrollTo('home')} className="text-left text-gray-500 hover:text-[#0065FF] text-sm transition-colors">Home</button>
+              <button onClick={() => scrollTo('services')} className="text-left text-gray-500 hover:text-[#0065FF] text-sm transition-colors">Services</button>
+              <button onClick={() => scrollTo('playground')} className="text-left text-gray-500 hover:text-[#0065FF] text-sm transition-colors">Playground</button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-white font-black tracking-widest text-xs uppercase">Connect</h4>
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#0065FF] hover:border-[#0065FF] transition-all"><FaGithub size={18} /></a>
+              <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#0065FF] hover:border-[#0065FF] transition-all"><FaTwitter size={18} /></a>
+              <a href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#0065FF] hover:border-[#0065FF] transition-all"><FaLinkedinIn size={18} /></a>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-white font-black tracking-widest text-xs uppercase">Locations</h4>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              Serving premium IT solutions in <span className="text-white/80">Ahmedabad</span> and <span className="text-white/80">Bhavnagar</span>.
+            </p>
+          </div>
+        </div>
+
+        {/* Visually Hidden SEO Content */}
+        <div className="sr-only" aria-hidden="true">
+          <h2>Techly: Best IT Company in Ahmedabad and Bhavnagar</h2>
+          <p>
+            Techly is a leading IT solutions provider in Ahmedabad and Bhavnagar, offering the best website development services, mobile app development, and professional IT solutions. 
+            Whether you are looking for an IT company near me, a responsive website design company, or an e-commerce website development expert in Gujarat, Techly provides complete digital solutions.
+            Our custom software development, AI-based web and app solutions, and SEO strategies are designed for business growth and startup success.
+          </p>
+          <ul>
+            <li>Techly Best IT Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly Web and App Development Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly Leading IT Solutions Provider in Ahmedabad and Bhavnagar</li>
+            <li>Techly Website Development Services in Ahmedabad and Bhavnagar</li>
+            <li>Techly Mobile App Development Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly SEO and Digital Growth Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly Custom Software Development in Ahmedabad and Bhavnagar</li>
+            <li>Techly AI Based Web and App Solutions in Ahmedabad and Bhavnagar</li>
+            <li>Techly Professional IT Company Near You in Ahmedabad and Bhavnagar</li>
+            <li>Techly Business Growth and Technology Solutions in Ahmedabad and Bhavnagar</li>
+            <li>Techly Responsive Website Design Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly E Commerce Website Development in Ahmedabad and Bhavnagar</li>
+            <li>Techly Full Stack Development Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly Startup Friendly IT Company in Ahmedabad and Bhavnagar</li>
+            <li>Techly Complete Digital Solutions Company in Ahmedabad and Bhavnagar</li>
+          </ul>
+        </div>
+
+        <div className="mt-20 pt-8 border-t border-white/5 text-center">
+          <p className="text-gray-600 text-[10px] font-black tracking-[0.2em] uppercase">
+            © 2024 Techly. Precision Engineered for Growth.
+          </p>
+        </div>
+      </footer>
 
       {/* Liquid Navigation Dock (Desktop) */}
       {!showSplash && (
