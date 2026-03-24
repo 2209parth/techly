@@ -34,7 +34,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(({ customClass, ...res
   <div
     ref={ref}
     {...rest}
-    className={`absolute top-1/2 left-1/2 rounded-xl border border-white bg-black [transform-style:preserve-3d] [will-change:transform] [backface-visibility:hidden] ${customClass ?? ''} ${rest.className ?? ''}`.trim()}
+    className={`absolute top-1/2 left-1/2 rounded-3xl border border-white/10 bg-[#000510]/80 backdrop-blur-3xl shadow-2xl [transform-style:preserve-3d] [will-change:transform] [backface-visibility:hidden] ${customClass ?? ''} ${rest.className ?? ''}`.trim()}
   />
 ));
 Card.displayName = 'Card';
@@ -80,7 +80,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
   children,
   containerClassName
 }) => {
-  const config =
+  const config = useMemo(() => 
     easing === 'elastic'
       ? {
           ease: 'elastic.out(0.6,0.9)',
@@ -97,12 +97,15 @@ const CardSwap: React.FC<CardSwapProps> = ({
           durReturn: 0.8,
           promoteOverlap: 0.45,
           returnDelay: 0.2
-        };
+        }, [easing]);
 
   const childArr = useMemo(() => Children.toArray(children) as ReactElement<CardProps>[], [children]);
-  const refs = useMemo<CardRef[]>(() => childArr.map(() => React.createRef<HTMLDivElement>()), [childArr.length]);
+  const refs = useMemo<CardRef[]>(() => childArr.map(() => React.createRef<HTMLDivElement>()), [childArr]);
 
-  const order = useRef<number[]>(Array.from({ length: childArr.length }, (_, i) => i));
+  const order = useRef<number[]>([]);
+  useEffect(() => {
+    order.current = Array.from({ length: childArr.length }, (_, i) => i);
+  }, [childArr.length]);
 
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const intervalRef = useRef<number>(0);
@@ -113,18 +116,16 @@ const CardSwap: React.FC<CardSwapProps> = ({
     if (total === 0) return;
 
     refs.forEach((r, i) => {
-      if (r.current) {
-        placeNow(r.current, makeSlot(i, cardDistance, verticalDistance, total), skewAmount);
-      }
+        if(r.current) {
+            placeNow(r.current, makeSlot(i, cardDistance, verticalDistance, total), skewAmount);
+        }
     });
 
     const swap = () => {
       if (order.current.length < 2) return;
 
       const [front, ...rest] = order.current;
-      const elFront = refs[front].current;
-      if (!elFront) return;
-
+      const elFront = refs[front].current!;
       const tl = gsap.timeline();
       tlRef.current = tl;
 
@@ -136,8 +137,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
 
       tl.addLabel('promote', `-=${config.durDrop * config.promoteOverlap}`);
       rest.forEach((idx, i) => {
-        const el = refs[idx].current;
-        if (!el) return;
+        const el = refs[idx].current!;
         const slot = makeSlot(i, cardDistance, verticalDistance, refs.length);
         tl.set(el, { zIndex: slot.zIndex }, 'promote');
         tl.to(
@@ -179,8 +179,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
       });
     };
 
-    // Swap only starts after first delay if we don't call it here.
-    // However, the provided code had swap() called immediately.
+    // Immediate call for initial swap
     // swap(); 
     
     intervalRef.current = window.setInterval(swap, delay);
@@ -204,7 +203,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
       };
     }
     return () => clearInterval(intervalRef.current);
-  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
+  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing, config, refs]);
 
   const rendered = childArr.map((child, i) =>
     isValidElement<CardProps>(child)
@@ -223,7 +222,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
   return (
     <div
       ref={container}
-      className={`relative perspective-[1200px] overflow-visible ${containerClassName ?? ''}`}
+      className={`absolute bottom-0 right-0 transform translate-x-[5%] translate-y-[20%] origin-bottom-right perspective-[1200px] overflow-visible max-[768px]:translate-x-[25%] max-[768px]:translate-y-[25%] max-[768px]:scale-[0.75] max-[480px]:translate-x-[25%] max-[480px]:translate-y-[25%] max-[480px]:scale-[0.55] ${containerClassName ?? ''}`}
       style={{ width, height }}
     >
       {rendered}

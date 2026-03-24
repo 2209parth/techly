@@ -22,6 +22,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${googleSansCode.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-mono">{children}</body>
     </html>

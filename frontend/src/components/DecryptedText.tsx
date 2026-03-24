@@ -18,6 +18,22 @@ const styles = {
   }
 };
 
+interface DecryptedTextProps {
+  text: string;
+  speed?: number;
+  maxIterations?: number;
+  sequential?: boolean;
+  revealDirection?: 'start' | 'end' | 'center';
+  useOriginalCharsOnly?: boolean;
+  characters?: string;
+  className?: string;
+  parentClassName?: string;
+  encryptedClassName?: string;
+  animateOn?: 'hover' | 'click' | 'view' | 'inViewHover';
+  clickMode?: 'once' | 'toggle';
+  [key: string]: any;
+}
+
 export default function DecryptedText({
   text,
   speed = 50,
@@ -32,16 +48,16 @@ export default function DecryptedText({
   animateOn = 'hover',
   clickMode = 'once',
   ...props
-}: any) {
+}: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [revealedIndices, setRevealedIndices] = useState(new Set());
+  const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set());
   const [hasAnimated, setHasAnimated] = useState(false);
   const [isDecrypted, setIsDecrypted] = useState(animateOn === 'hover');
   const [direction, setDirection] = useState('forward');
 
-  const containerRef = useRef<any>(null);
-  const orderRef = useRef<any[]>([]);
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const orderRef = useRef<number[]>([]);
   const pointerRef = useRef(0);
 
   const availableChars = useMemo(() => {
@@ -66,7 +82,7 @@ export default function DecryptedText({
 
   const computeOrder = useCallback(
     (len: number) => {
-      const order = [];
+      const order: number[] = [];
       if (len <= 0) return order;
       if (revealDirection === 'start') {
         for (let i = 0; i < len; i++) order.push(i);
@@ -147,7 +163,7 @@ export default function DecryptedText({
   useEffect(() => {
     if (!isAnimating) return;
 
-    let interval: any;
+    let interval: NodeJS.Timeout | number;
     let currentIteration = 0;
 
     const getNextIndex = (revealedSet: Set<number>) => {
@@ -314,7 +330,7 @@ export default function DecryptedText({
   useEffect(() => {
     if (animateOn !== 'view' && animateOn !== 'inViewHover') return;
 
-    const observerCallback = (entries: any[]) => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && !hasAnimated) {
           triggerDecrypt();

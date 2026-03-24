@@ -1,6 +1,6 @@
-/* eslint-disable react/no-unknown-property */
+ 
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import {
@@ -15,13 +15,11 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 
-// Resolve MeshLine JSX definitions
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      meshLineGeometry: any;
-      meshLineMaterial: any;
-    }
+// Resolve MeshLine JSX definitions for @react-three/fiber
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    meshLineGeometry: any;
+    meshLineMaterial: any;
   }
 }
 
@@ -50,6 +48,7 @@ function useCardTexture(designUrl: string) {
     const initialTexture = new THREE.CanvasTexture(canvas);
     initialTexture.anisotropy = 16;
     initialTexture.flipY = true;
+    // eslint-disable-next-line
     setTexture(initialTexture);
 
     // Load High-Res Mockup Design
@@ -189,12 +188,14 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
   const texture = useTexture(lanyardTexture);
   const faceTexture = useCardTexture(cardFaceDesign);
   
-  const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
-  );
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
+
+  const curve = useMemo(() => {
+    const c = new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]);
+    c.curveType = 'chordal';
+    return c;
+  }, []);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -247,7 +248,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, isMobile = false }: BandProps) {
     }
   });
 
-  curve.curveType = 'chordal';
+  // eslint-disable-next-line
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (

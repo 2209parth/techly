@@ -151,7 +151,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
       ref={rootRef}
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}
-      className={`relative w-full h-full flex flex-wrap justify-center items-start gap-3 ${className}`}
+      className={`relative w-full h-full flex flex-wrap justify-center items-start gap-6 ${className}`}
       style={
         {
           '--r': `${radius}px`,

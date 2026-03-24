@@ -1,15 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Plasma from '@/components/Plasma';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link'; // Added Link import
+const Plasma = dynamic(() => import('@/components/Plasma'), { ssr: false });
 import DecryptedText from '@/components/DecryptedText';
+import SplashScreen from '@/components/SplashScreen';
+import { motion, AnimatePresence } from 'framer-motion';
 import MagicNav from '@/components/MagicNav';
 import MagicBento from '@/components/MagicBento';
-import ChromaGrid from '@/components/ChromaGrid';
 import TiltedCard from '@/components/TiltedCard';
 import CardSwap, { Card } from '@/components/CardSwap';
 import Dock from '@/components/Dock';
-import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse } from 'react-icons/vsc';
+import LiquidDock from '@/components/LiquidDock';
+import ProfileCard from '@/components/ProfileCard';
+import WhyUs from '@/components/WhyUs';
+import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse, VscDeviceMobile, VscRobot, VscGraphLine, VscPackage, VscEdit, VscLink, VscGithub, VscSymbolMethod, VscSymbolColor } from 'react-icons/vsc';
 
 // Hook for window size
 function useWindowSize() {
@@ -34,40 +40,79 @@ function useWindowSize() {
   return windowSize;
 }
 
+const teamMembers = [
+  {
+    name: "Parth",
+    role: "FOUNDER",
+    description: "The visionary architect behind Techly's most ambitious projects. Parth combines strategic foresight with a deep obsession for technical perfection.",
+    imageSrc: "/parth_grayscale_studio_1774344363235.png",
+    icons: [<VscLink key="1" />, <VscEdit key="2" />]
+  },
+  {
+    name: "Utsav",
+    role: "CHIEF EXECUTIVE OFFICER",
+    description: "Driving global growth and operational excellence. Utsav ensures the Techly ecosystem remains a leader in digital innovation and client success.",
+    imageSrc: "/utsav_grayscale_studio_1774344385910.png",
+    icons: [<VscLink key="1" />, <VscCode key="2" />]
+  },
+  {
+    name: "Kaushik",
+    role: "CHIEF TECHNOLOGY OFFICER",
+    description: "Crafting the technical future of Techly. Kaushik bridges the gap between raw computing power and elegant software solutions.",
+    imageSrc: "/kaushik_grayscale_studio_1774344408680.png",
+    icons: [<VscSymbolColor key="1" />, <VscLink key="2" />]
+  }
+];
+
 export default function Home() {
   const { width: windowWidth } = useWindowSize();
   const isMobile = windowWidth < 768;
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
 
   const [showSplash, setShowSplash] = useState(true);
-  const [fadeSplash, setFadeSplash] = useState(false);
+
+  // Sync navigation active state with page scroll
+  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+
+  useEffect(() => {
+    const sectionIds = ['home', 'services', 'playground', 'why', 'identity', 'contact'];
+    
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = sectionIds.indexOf(entry.target.id);
+          if (index !== -1) {
+            setActiveSectionIndex(index);
+          }
+        }
+      });
+    };
+
+    // Use a negative rootMargin so the element must cross the mid-section to become active
+    const observer = new IntersectionObserver(observerCallback, {
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0,
+    });
+
+    sectionIds.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Smooth scroll helper
   const scrollTo = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const top = element.offsetTop - 40;
+      window.scrollTo({ top, behavior: 'smooth' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  useEffect(() => {
-    // Start fading out the splash screen after 4 seconds (to accommodate 3s animation + buffer)
-    const fadeTimer = setTimeout(() => {
-      setFadeSplash(true);
-    }, 4000);
-
-    // Remove it completely from DOM after 5 seconds
-    const removeTimer = setTimeout(() => {
-      setShowSplash(false);
-    }, 5000);
-
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
-    };
-  }, []);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
     { role: 'ai', content: "Hello! I'm Techly's intelligent assistant. How can I help you build your digital experience today?" }
@@ -161,63 +206,6 @@ await app.deploy({
 
 // Output: Techly Digital Experience initialized.`);
 
-  const chromaItems = [
-    {
-      image: "/founder_parth_patel.png",
-      title: "Parth Patel",
-      subtitle: "Founder",
-      handle: "@parthmk85",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    },
-    {
-      image: "https://i.pravatar.cc/300?img=12",
-      title: "Utsav",
-      subtitle: "CEO",
-      handle: "@utsavceo",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    },
-    {
-      image: "https://i.pravatar.cc/300?img=11",
-      title: "Kaushik",
-      subtitle: "CTO",
-      handle: "@kaushikcto",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    },
-    {
-      image: "https://i.pravatar.cc/300?img=68",
-      title: "Dhruv",
-      subtitle: "UI/UX Designer",
-      handle: "@dhruvdesign",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    },
-    {
-      image: "https://i.pravatar.cc/300?img=45",
-      title: "Netra",
-      subtitle: "Developer",
-      handle: "@netradev",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    },
-    {
-      image: "https://i.pravatar.cc/300?img=48",
-      title: "Madhvi",
-      subtitle: "Sales Manager",
-      handle: "@madhvisales",
-      borderColor: "#0065FF",
-      gradient: "linear-gradient(145deg, #0065FF30, #000B1A)",
-      url: "#"
-    }
-  ];
-
   const [consoleLogs, setConsoleLogs] = useState([
     { type: 'system', message: '[SYSTEM] Ready to code. Techly Core v4.2.0 initialized successfully.' }
   ]);
@@ -232,7 +220,7 @@ await app.deploy({
                 setConsoleLogs(prev => [...prev, { type: 'success', message: '→ [OUTPUT] Hello, World!' }]);
             } else if (codeToRun.includes('app.deploy')) {
                 setConsoleLogs(prev => [...prev, { type: 'success', message: '→ [DEPLOY] Success: Digital Experience live at dev-preview.techly.ai' }]);
-            } else {
+                // eslint-disable-next-line no-eval
                 const result = eval(codeToRun);
                 setConsoleLogs(prev => [...prev, { type: 'success', message: `→ Result: ${result}` }]);
             }
@@ -266,27 +254,17 @@ await app.deploy({
     <main className={`min-h-screen bg-black text-white selection:bg-[#0065FF]/30 font-[family-name:var(--font-geist-sans)] ${showSplash ? 'h-screen overflow-hidden' : ''}`}>
       
       {/* Splash Screen */}
-      {showSplash && (
-        <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#000510] transition-opacity duration-1000 ${fadeSplash ? 'opacity-0' : 'opacity-100'}`}>
-          <div className="absolute inset-0 bg-[#0065FF]/5 blur-[150px] pointer-events-none"></div>
-          <div className="text-2xl md:text-5xl font-black text-white drop-shadow-[0_0_15px_rgba(0,101,255,0.4)] z-10 font-mono tracking-widest text-center px-4">
-            <DecryptedText
-              text="Lets Build Your Dreams"
-              speed={135}
-              maxIterations={10}
-              characters="0123456789!@#$%^&*"
-              animateOn="view"
-              revealDirection="start"
-              sequential={true}
-            />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showSplash && (
+          <SplashScreen onComplete={() => setShowSplash(false)} />
+        )}
+      </AnimatePresence>
+     
 
       {/* Fixed Logo - Top Left */}
-      <a href="/" className="fixed top-10 left-8 md:left-12 z-[60] hover:opacity-80 transition-opacity drop-shadow-2xl">
-         <img src="/reallogo.png" alt="Techly Logo" className="h-14 md:h-16 w-auto" />
-      </a>
+      <Link href="/" className="fixed top-6 md:top-10 left-6 md:left-12 z-[60] hover:opacity-80 transition-opacity drop-shadow-2xl">
+         <img src="/reallogo.png" alt="Techly Logo" className="h-10 md:h-16 w-auto" />
+      </Link>
 
       {/* Hero Section */}
       <header className="relative w-full h-screen overflow-hidden bg-[#000510]" id="home">
@@ -303,34 +281,32 @@ await app.deploy({
 
             {/* Centered Content */}
             <div className="relative z-30 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col items-center">
-              <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.95] max-w-4xl px-4">
-                 <span className="text-white/90">We Build Digital Experiences </span>
-                 <span className="text-[#0065FF]">That Grow Your Business.</span>
+              <h1 className="text-[2.2rem] xs:text-[2.5rem] md:text-7xl font-black tracking-tighter mb-8 leading-[1.05] md:leading-[0.95] max-w-4xl px-2 md:px-4">
+                 <span className="text-white/90 text-center block md:inline">We Build Digital Experiences </span>
+                 <span className="text-[#0065FF] text-center block md:inline">That Grow Your Business.</span>
               </h1>
               
-              <p className="text-gray-400 text-base md:text-lg max-w-xl mb-12 font-medium leading-relaxed mx-auto text-balance">
+              <p className="text-gray-400 text-sm md:text-lg max-w-xl mb-12 font-medium leading-relaxed mx-auto text-balance px-6 md:px-0">
                 Predictive intelligence designed to automate focus and mitigate risk across your entire workflow.
               </p>
-              
-              <div className="flex flex-wrap items-center justify-center gap-8 mb-8">
-                 <button className="flex items-center gap-3 px-12 py-5 bg-[#0065FF] text-white font-black rounded-2xl hover:bg-[#0055dd] transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl shadow-[#0065FF]/40">
-                    Book a Demo
-                    <div className="bg-white/20 p-1 rounded-lg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></div>
-                 </button>
-                 <a href="#" className="flex items-center gap-3 text-lg font-bold tracking-tight hover:text-white transition-colors text-gray-400 group">
-                    Learn More
-                    <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                 </a>
+                     <div className="flex flex-wrap items-center justify-center gap-8 mb-8">
+                  <button 
+                   onClick={() => setIsChatOpen(true)}
+                   className="flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-[#0065FF] text-white text-sm md:text-base font-black rounded-2xl hover:bg-[#0055dd] transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl shadow-[#0065FF]/40"
+                  >
+                     Free Counseling
+                     <div className="bg-white/20 p-1 rounded-lg">
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                     </div>
+                  </button>
               </div>
             </div>
 
             {/* AI Chat & Suggestion - Bottom Right */}
-            <div className={`fixed bottom-10 right-10 z-50 flex flex-col items-end gap-4 transition-all duration-500`}>
+            <div className={`fixed ${isMobile ? 'bottom-24 right-5' : 'bottom-10 right-10'} z-50 flex flex-col items-end gap-3 md:gap-4 transition-all duration-500 w-[calc(100vw-40px)] md:w-auto`}>
                {/* Chat Window */}
                {isChatOpen && (
-                 <div className="w-[450px] h-[600px] bg-[#050505]/80 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-left animate-in zoom-in-95 fade-in slide-in-from-bottom-10 origin-bottom-right duration-300">
+                 <div className="w-full md:w-[450px] h-[70vh] md:h-[600px] bg-[#050505]/80 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-left animate-in zoom-in-95 fade-in slide-in-from-bottom-10 origin-bottom-right duration-300">
                     {/* Header */}
                     <div className="p-6 bg-[#0065FF]/10 border-b border-white/5 flex items-center justify-between">
                        <div className="flex items-center gap-3">
@@ -434,8 +410,119 @@ await app.deploy({
         <div className="absolute inset-0 bg-gradient-to-t from-[#000510] via-transparent to-[#000510] opacity-80 z-[5] pointer-events-none" />
       </header>
 
+      {/* Services Section */}
+      <section id="services" className="relative min-h-screen flex flex-col justify-center py-20 px-8 overflow-hidden bg-[#000510] border-t border-white/5 scroll-mt-24">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left Side: Content */}
+            <div className="space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#0065FF]/10 border border-[#0065FF]/20 text-[#0065FF] text-[10px] font-black tracking-[0.2em] uppercase">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF] animate-pulse"></div>
+                Our Expertise
+              </div>
+              <h2 className="text-4xl lg:text-7xl font-black tracking-tighter leading-[0.9] text-white uppercase">
+                Our <span className="text-[#0065FF]">Services</span>
+              </h2>
+              <p className="text-gray-400 text-base md:text-lg leading-relaxed max-w-md">
+                We provide end-to-end digital solutions designed to help your business thrive in the modern technological landscape. 
+                Explore our core competencies where cutting-edge technology meets creative excellence.
+              </p>
+              <div className="pt-2 md:pt-4">
+                <button className="px-6 md:px-8 py-3 md:py-4 bg-[#0065FF] text-white text-[10px] md:text-xs font-black tracking-widest uppercase rounded-xl hover:bg-blue-600 transition-all shadow-xl shadow-[#0065FF]/20 transform hover:scale-[1.02] active:scale-95">
+                  View All Solutions
+                </button>
+              </div>
+            </div>
+
+            {/* Right Side: CardSwap */}
+            <div className="relative w-full h-[600px] flex items-center justify-center lg:justify-end pt-64 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+              <div className="relative">
+                {/* Decorative Glow behind cards */}
+                <div className="absolute -inset-20 bg-[#0065FF]/5 blur-[100px] rounded-full"></div>
+                
+                <CardSwap
+                  width={isMobile ? 280 : 500}
+                  height={isMobile ? 320 : 400}
+                  cardDistance={isMobile ? 30 : 60}
+                  verticalDistance={isMobile ? 40 : 70}
+                  delay={4000}
+                  pauseOnHover={true}
+                >
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#030712]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Engineering</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">Web Solutions</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">Bespoke Websites, Web Apps, and full-stack engineering.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscCode size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#060010]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Mobile</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">App Ecosystems</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">Native iOS/Android apps and cross-platform experiences.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[8px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscDeviceMobile size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#030712]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Future Tech</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">AI & Automation</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">Intelligent Chatbots, AI Movie Creation, and Business Automation.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscRobot size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#060010]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Growth</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">Digital Authority</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">Global SEO, API Integrations, and 24/7 Maintenance Support.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[8px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscGraphLine size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#030712]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Commerce</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">Value Sales</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">E-commerce, Course Selling, and High-ROI Digital Marketing.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[8px] md:text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscPackage size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="flex flex-col p-6 md:p-10 border-white/5 bg-[#060010]/90">
+                    <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#0065FF] mb-4 md:mb-6">Creative</span>
+                    <h3 className="text-2xl md:text-4xl font-black text-white m-0 mb-4 md:mb-6 uppercase">Design Excellence</h3>
+                    <p className="text-xs md:text-base text-white/50 font-semibold leading-relaxed">Elite UI/UX and Brand Graphic Design.</p>
+                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
+                      <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">Techly Intelligence</span>
+                      <div className="w-8 h-8 rounded-full bg-[#0065FF]/20 flex items-center justify-center">
+                         <VscEdit size={16} className="text-[#0065FF]" />
+                      </div>
+                    </div>
+                  </Card>
+                </CardSwap>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Coding Section */}
-      <section id="playground" className="relative py-32 px-8 overflow-hidden bg-[#050505] border-t border-white/5">
+      <section id="playground" className="relative min-h-screen flex flex-col justify-center py-20 px-8 overflow-hidden bg-[#050505] border-t border-white/5 scroll-mt-24">
          <div className="max-w-7xl mx-auto relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.3fr] gap-16 items-center">
                
@@ -445,10 +532,10 @@ await app.deploy({
                      <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF] animate-pulse"></div>
                      Developer Preview
                   </div>
-                  <h2 className="text-5xl lg:text-6xl font-black tracking-tighter leading-[0.9] text-white">
+                  <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-white">
                      Want to try some <span className="text-[#0065FF]">coding?</span>
                   </h2>
-                  <p className="text-gray-500 text-lg leading-relaxed max-w-sm">
+                  <p className="text-gray-500 text-base md:text-lg leading-relaxed max-w-sm">
                      Experience the power of our tech stack directly in your browser. Build, test, and witness high-performance code in real-time.
                   </p>
                   <div className="pt-4">
@@ -464,45 +551,60 @@ await app.deploy({
                   {/* Outer Glow */}
                   <div className="absolute -inset-4 bg-[#0065FF]/5 blur-3xl rounded-[2rem]"></div>
                   
+                  {/* Mobile Run Button */}
+                  <div className="md:hidden flex justify-between items-center mb-4 px-2">
+                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                        main.ts
+                     </span>
+                     <button 
+                        onClick={() => runCode()}
+                        className="px-4 py-2 bg-[#0065FF] text-white text-[10px] font-black tracking-widest uppercase rounded-xl shadow-lg shadow-[#0065FF]/20 flex items-center gap-2 active:scale-95 transition-transform"
+                     >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        Run Code
+                     </button>
+                  </div>
+                  
                   {/* Editor Window */}
                   <div className="relative bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px]">
                      {/* Editor Header */}
                      <div className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5">
                         <div className="flex items-center gap-4">
-                           <div className="flex gap-1.5">
+                           <div className="flex gap-1.5 shrink-0">
                               <div className="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
                               <div className="w-3 h-3 rounded-full bg-[#febc2e]"></div>
                               <div className="w-3 h-3 rounded-full bg-[#28c840]"></div>
                            </div>
-                           <div className="h-4 w-[1px] bg-white/10 mx-2"></div>
-                           <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase flex items-center gap-2">
+                           <div className="h-4 w-[1px] bg-white/10 mx-2 shrink-0"></div>
+                           <span className="text-[8px] md:text-[10px] font-bold text-gray-500 tracking-widest uppercase flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
                               main.ts — Techly Workspace
                            </span>
                         </div>
                         <button 
                            onClick={() => runCode()}
-                           className="px-4 py-1.5 bg-[#0065FF] hover:bg-[#0055dd] text-white text-[10px] font-black tracking-widest uppercase rounded-lg transition-all shadow-lg shadow-[#0065FF]/20 flex items-center gap-2 group/btn"
+                           className="hidden md:flex px-4 py-1.5 bg-[#0065FF] hover:bg-[#0055dd] text-white text-[10px] font-black tracking-widest uppercase rounded-lg transition-all shadow-lg shadow-[#0065FF]/20 items-center gap-2 group/btn shrink-0"
                         >
-                           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="group-hover/btn:scale-110 transition-transform"><path d="M8 5v14l11-7z"/></svg>
+                           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="group-hover/btn:scale-110 transition-transform"><path d="M8 5v14l11-7z"/></svg>
                            Run Code
                         </button>
                      </div>
 
                      {/* AI Developer Input */}
-                     <div className="px-6 py-3 bg-white/5 border-b border-white/5">
+                     <div className="px-4 md:px-6 py-2 md:py-3 bg-white/5 border-b border-white/5">
                         <form onSubmit={handleAICommand} className="relative group">
                            <div className="absolute -inset-1 bg-gradient-to-r from-[#0065FF]/20 to-purple-500/20 blur opacity-75 group-focus-within:opacity-100 transition-opacity rounded-xl"></div>
-                           <div className="relative flex items-center bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs">
+                           <div className="relative flex items-center bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-[11px] md:text-xs">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0065FF" strokeWidth="2.5" className="mr-3 shrink-0"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10h-10V2z" opacity="0.3"/></svg>
                               <input 
                                  type="text" 
                                  value={aiCommand}
                                  onChange={(e) => setAiCommand(e.target.value)}
-                                 placeholder="Ask AI Developer to write code... (e.g. 'Write a C program to print hello world')" 
+                                 placeholder="Ask AI Developer to write code..." 
                                  className="w-full bg-transparent text-white placeholder:text-gray-600 focus:outline-none"
                               />
-                              <div className="flex items-center gap-2 ml-2">
+                              <div className="hidden md:flex items-center gap-2 ml-2">
                                  <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[8px] font-bold text-gray-500 uppercase tracking-tighter">Enter</span>
                               </div>
                            </div>
@@ -512,7 +614,7 @@ await app.deploy({
                      {/* Editor Content */}
                      <div className="flex-1 flex overflow-hidden">
                         {/* Line Numbers */}
-                        <div className="w-12 py-6 bg-black/20 border-r border-white/5 flex flex-col items-center gap-2 text-[10px] font-mono text-gray-700 select-none">
+                        <div className="w-10 md:w-12 py-6 bg-black/20 border-r border-white/5 flex flex-col items-center gap-2 text-[8px] md:text-[10px] font-mono text-gray-700 select-none">
                            {Array.from({ length: 15 }).map((_, i) => (
                               <div key={i}>{i + 1}</div>
                            ))}
@@ -524,7 +626,7 @@ await app.deploy({
                               spellCheck={false}
                               value={editorCode}
                               onChange={(e) => setEditorCode(e.target.value)}
-                              className="absolute inset-0 w-full h-full bg-transparent p-6 font-mono text-sm leading-relaxed text-white caret-[#0065FF] resize-none focus:outline-none z-10"
+                              className="absolute inset-0 w-full h-full bg-transparent p-4 md:p-6 font-mono text-[11px] md:text-sm leading-relaxed text-white caret-[#0065FF] resize-none focus:outline-none z-10"
                            />
                         </div>
                      </div>
@@ -546,111 +648,55 @@ await app.deploy({
                            </div>
                         ))}
                      </div>
-                  </div>
-               </div>
-
-            </div>
-         </div>
-
-         {/* Background Decoration */}
-         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0065FF]/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
-         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#0065FF]/3 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2"></div>
-      </section>
-
-       {/* Feature Stack Section */}
-       <section className="relative py-32 px-4 md:px-8 bg-[#000510] overflow-hidden">
-          <div className="w-full max-w-7xl mx-auto px-8 lg:px-12">
-            <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-12 lg:gap-24">
-               {/* Left Side: Header */}
-               <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start pb-12">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#0065FF]/10 border border-[#0065FF]/20 text-[#0065FF] text-[10px] font-black tracking-[0.2em] uppercase mb-8">
-                     <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF]"></div>
-                     Our Expertise
-                  </div>
-                  <h2 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-white mb-8 text-center lg:text-left leading-[0.85]">
-                     Our <br /> <span className="text-[#0065FF]">Services</span>
-                  </h2>
-                  <p className="text-white/40 text-sm font-medium uppercase tracking-[0.2em] max-w-xs text-center lg:text-left leading-relaxed">
-                     Transforming ideas into high-performance digital reality through elite engineering.
-                  </p>
-               </div>
-
-               {/* Right Side: CardSwap centered in its area */}
-               <div className="w-full lg:w-[55%] flex justify-center items-center py-20 min-h-[600px] relative overflow-visible">
-                  <CardSwap
-                    cardDistance={isMobile ? 25 : 40}
-                    verticalDistance={isMobile ? 35 : 50}
-                    delay={3000}
-                    width={isMobile ? 300 : isTablet ? 450 : 550}
-                    height={isMobile ? 280 : isTablet ? 320 : 380}
-                    pauseOnHover={true}
-                    containerClassName="mx-auto"
-                  >
-                    {[
-                      { title: 'Web Solutions', description: 'Bespoke Websites, Web Apps, and full-stack engineering.', label: 'Engineering', icon: <VscCode className="text-[#0065FF] text-2xl" /> },
-                      { title: 'App Ecosystems', description: 'Native iOS/Android apps and cross-platform experiences.', label: 'Mobile', icon: <VscCode className="text-[#0065FF] text-2xl" /> },
-                      { title: 'AI & Automation', description: 'Intelligent Chatbots, AI Movie Creation, and Business Automation.', label: 'Future Tech', icon: <VscPulse className="text-[#0065FF] text-2xl" /> },
-                      { title: 'Digital Authority', description: 'Global SEO, API Integrations, and 24/7 Maintenance Support.', label: 'Growth', icon: <VscMail className="text-[#0065FF] text-2xl" /> },
-                      { title: 'Value Sales', description: 'E-commerce, Course Selling, and High-ROI Digital Marketing.', label: 'Commerce', icon: <VscHome className="text-[#0065FF] text-2xl" /> },
-                      { title: 'Design Excellence', description: 'Elite UI/UX and Brand Graphic Design.', label: 'Creative', icon: <VscCode className="text-[#0065FF] text-2xl" /> }
-                    ].map((service, i) => (
-                      <Card key={i} className="p-10 border-[#0065FF]/30 bg-[#060010]/90 backdrop-blur-3xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col justify-center group">
-                        <div className="mb-6">
-                          <div className="w-12 h-12 rounded-xl bg-[#0065FF]/10 flex items-center justify-center mb-6 border border-[#0065FF]/20 group-hover:scale-110 transition-transform duration-500">
-                            {service.icon}
-                          </div>
-                          <span className="text-[#0065FF] text-[10px] font-black uppercase tracking-[0.3em] mb-3 block opacity-70">{service.label}</span>
-                          <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none">{service.title}</h3>
-                          <p className="text-sm text-white/50 leading-relaxed font-medium">{service.description}</p>
-                        </div>
-                        <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
-                          <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Solutions Series 2026</span>
-                          <div className="flex gap-1">
-                            {[...Array(3)].map((_, j) => (
-                              <div key={j} className={`w-1 h-1 rounded-full ${j === 0 ? 'bg-[#0065FF]' : 'bg-white/10'}`}></div>
-                            ))}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </CardSwap>
-               </div>
-            </div>
+                   </div>
+                </div>
              </div>
-         
-         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-[#0065FF]/5 blur-[120px] rounded-full -translate-x-1/2 opacity-50 pointer-events-none"></div>
-      </section>
-            {/* Identity Section - Full Width ChromaGrid */}
-      <section id="identity" className="relative py-24 px-8 bg-[#000510] border-t border-white/5 overflow-hidden">
-         <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
-            <div className="flex flex-col items-center mb-4">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#0065FF]/10 border border-[#0065FF]/20 text-[#0065FF] text-[10px] font-black tracking-[0.2em] uppercase mb-6">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#0065FF]"></div>
-                The Visionaries
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white text-center leading-none">
-                Our <span className="text-[#0065FF]">Leadership</span> Team
-              </h2>
-            </div>
-            
-            <div className="w-full min-h-[600px] relative">
-               <ChromaGrid 
-                 items={chromaItems}
-                 radius={isMobile ? 200 : 300}
-                 damping={0.45}
-                 fadeOut={0.6}
-                 ease="power3.out"
-               />
-            </div>
-         </div>
+          </div>
          
          {/* Background Glow */}
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0065FF]/5 blur-[150px] rounded-full pointer-events-none"></div>
       </section>
+
+       <WhyUs />
+
+      {/* Identity / Team Section */}
+      <section id="identity" className="relative min-h-screen flex flex-col justify-center pt-20 pb-48 px-8 overflow-hidden bg-[#050505] border-t border-white/5 scroll-mt-24">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-white uppercase">
+              Leadership <span className="text-[#0065FF]">Team</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-xl md:text-right">
+              Meet the visionaries behind Techly Intelligence who are committed to delivering world-class digital experiences.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
+            {teamMembers.map((member: any, i: number) => (
+              <ProfileCard
+                key={i}
+                name={member.name}
+                title={member.role}
+                handle={member.name.toLowerCase()}
+                status="Active"
+                avatarUrl={member.imageSrc}
+                showUserInfo={true}
+                enableTilt={true}
+                behindGlowEnabled={true}
+                behindGlowColor="rgba(0, 101, 255, 0.3)"
+                innerGradient="linear-gradient(145deg, rgba(0, 101, 255, 0.1) 0%, rgba(0, 5, 16, 0.9) 100%)"
+                onContactClick={() => scrollTo('contact')}
+                contactText="Connect"
+              />
+            ))}
+          </div>
+        </div>
+        {/* Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#0065FF]/5 blur-[150px] rounded-full pointer-events-none"></div>
+      </section>
    
 
       {/* Contact Section */}
-      <section id="contact" className="relative py-32 px-8 bg-[#000510] overflow-hidden border-t border-white/5">
+      <section id="contact" className="relative min-h-screen flex flex-col justify-center py-20 px-8 bg-[#000510] overflow-hidden border-t border-white/5 scroll-mt-24">
          {/* Background elements */}
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#0065FF]/5 blur-[150px] rounded-full pointer-events-none"></div>
          
@@ -658,10 +704,10 @@ await app.deploy({
             
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-               <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-white uppercase">
+               <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white uppercase">
                   Contact Us
                </h2>
-               <p className="text-gray-400 text-lg max-w-xl md:text-right">
+               <p className="text-gray-400 text-base md:text-lg max-w-xl md:text-right">
                   If you have any questions, please feel free to get in touch with us via phone, text, email, the form below, or even on social media!
                </p>
             </div>
@@ -670,25 +716,25 @@ await app.deploy({
             <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 mb-8">
                
                {/* Left: Form Card */}
-               <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative animate-in zoom-in-95 fade-in duration-1000 delay-200">
+               <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative animate-in zoom-in-95 fade-in duration-1000 delay-200">
                   <div className="absolute -inset-1 bg-gradient-to-br from-[#0065FF]/20 to-transparent blur-2xl opacity-50 rounded-3xl -z-10"></div>
-                  <h3 className="text-sm font-black tracking-widest text-[#0065FF] uppercase mb-8">Get in Touch</h3>
+                  <h3 className="text-xs font-black tracking-widest text-[#0065FF] uppercase mb-6 md:mb-8">Get in Touch</h3>
                   
-                  <form onSubmit={handleContactSubmit} className="space-y-6">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <form onSubmit={handleContactSubmit} className="space-y-4 md:space-y-6">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="space-y-2">
-                           <label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-gray-500">Name</label>
+                           <label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Name</label>
                            <input 
                               type="text" 
                               id="name" 
                               name="name" 
                               required 
                               placeholder="Enter your name" 
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                            />
                         </div>
                         <div className="space-y-2">
-                           <label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-gray-500">Phone Number</label>
+                           <label htmlFor="phone" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Phone Number</label>
                            <input 
                               type="tel" 
                               id="phone" 
@@ -701,57 +747,57 @@ await app.deploy({
                                  target.value = target.value.replace(/[^0-9]/g, '').slice(0, 10);
                               }}
                               placeholder="10-digit phone number" 
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                            />
                         </div>
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="space-y-2">
-                           <label htmlFor="business_name" className="text-xs font-bold uppercase tracking-widest text-gray-500">Business Name</label>
+                           <label htmlFor="business_name" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Business Name</label>
                            <input 
                               type="text" 
                               id="business_name" 
                               name="business_name" 
                               required 
-                              placeholder="Your business or company" 
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                              placeholder="Your business" 
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                            />
                         </div>
                         <div className="space-y-2">
-                           <label htmlFor="business_type" className="text-xs font-bold uppercase tracking-widest text-gray-500">Business Type</label>
+                           <label htmlFor="business_type" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Business Type</label>
                            <input 
                               type="text" 
                               id="business_type" 
                               name="business_type" 
                               required 
-                              placeholder="e.g. E-commerce, SaaS, Clinic" 
-                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                              placeholder="e.g. E-commerce" 
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                            />
                         </div>
                      </div>
                      
                      <div className="space-y-2">
-                        <label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-gray-500">Email</label>
+                        <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Email</label>
                         <input 
                            type="email" 
                            id="email" 
                            name="email" 
                            required 
                            placeholder="Enter your email" 
-                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
+                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors"
                         />
                      </div>
                      
                      <div className="space-y-2">
-                        <label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-gray-500">Your Message</label>
+                        <label htmlFor="message" className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Your Message</label>
                         <textarea 
                            id="message" 
                            name="message" 
                            required 
-                           rows={4} 
+                           rows={3} 
                            placeholder="Tell us about how we can help..." 
-                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors resize-none"
+                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 md:py-4 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#0065FF]/50 transition-colors resize-none"
                         ></textarea>
                      </div>
                      
@@ -759,9 +805,9 @@ await app.deploy({
                         <button 
                            type="submit" 
                            disabled={isSubmittingContact}
-                           className={`flex items-center gap-3 px-10 py-4 ${contactStatus === 'success' ? 'bg-[#28c840] hover:bg-[#28c840]' : contactStatus === 'error' ? 'bg-[#ff5f57] hover:bg-[#ff5f57]' : 'bg-[#0065FF] hover:bg-[#0055dd]'} text-white font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl ${contactStatus === 'success' ? 'shadow-[#28c840]/20' : 'shadow-[#0065FF]/20'} disabled:opacity-75 disabled:hover:scale-100 uppercase tracking-widest text-xs`}
+                           className={`flex items-center gap-3 px-8 md:px-10 py-3 md:py-4 ${contactStatus === 'success' ? 'bg-[#28c840] hover:bg-[#28c840]' : contactStatus === 'error' ? 'bg-[#ff5f57] hover:bg-[#ff5f57]' : 'bg-[#0065FF] hover:bg-[#0055dd]'} text-white font-black rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl ${contactStatus === 'success' ? 'shadow-[#28c840]/20' : 'shadow-[#0065FF]/20'} disabled:opacity-75 disabled:hover:scale-100 uppercase tracking-widest text-[10px]`}
                         >
-                           {isSubmittingContact ? 'Sending...' : contactStatus === 'success' ? 'Message Sent!' : contactStatus === 'error' ? 'Error Sending' : 'Send Message'}
+                           {isSubmittingContact ? 'Sending...' : contactStatus === 'success' ? 'Sent!' : contactStatus === 'error' ? 'Error' : 'Send Message'}
                         </button>
                      </div>
                   </form>
@@ -831,33 +877,37 @@ await app.deploy({
          </div>
       </section>
 
-      {/* Simple Footer */}
-      <footer className="py-20 px-8 border-t border-white/5 text-center text-gray-600 bg-[#000510] pb-32">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <img src="/reallogo.png" alt="Techly Logo" className="h-8 w-auto opacity-50 grayscale hover:grayscale-0 transition-all cursor-pointer" />
-          <p className="text-[10px] tracking-[0.2em] font-bold uppercase">© 2026 TECHLY INTELLIGENCE. ALL RIGHTS RESERVED.</p>
-          <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-          </div>
+      {/* Liquid Navigation Dock (Desktop) */}
+      {!showSplash && (
+        <div className="hidden md:block">
+          <LiquidDock 
+            activeIndex={activeSectionIndex}
+            items={[
+              { icon: <VscHome size={22} />, label: 'Home', onClick: () => scrollTo('home') },
+              { icon: <VscBriefcase size={22} />, label: 'Services', onClick: () => scrollTo('services') },
+              { icon: <VscCode size={22} />, label: 'Playground', onClick: () => scrollTo('playground') },
+              { icon: <VscPulse size={22} />, label: 'Why Us', onClick: () => scrollTo('why') },
+              { icon: <VscLayers size={22} />, label: 'Leadership', onClick: () => scrollTo('identity') },
+              { icon: <VscMail size={22} />, label: 'Contact', onClick: () => scrollTo('contact') },
+            ]}
+          />
         </div>
-      </footer>
+      )}
 
-      {/* Apple-Style Navigation Dock */}
-      <div className="hidden md:block">
-        <Dock 
-          items={[
-            { icon: <VscHome size={20} />, label: 'Home', onClick: () => scrollTo('home') },
-            { icon: <VscBriefcase size={20} />, label: 'Services', onClick: () => scrollTo('services') },
-            { icon: <VscCode size={20} />, label: 'Playground', onClick: () => scrollTo('playground') },
-            { icon: <VscLayers size={20} />, label: 'Leadership', onClick: () => scrollTo('identity') },
-            { icon: <VscMail size={20} />, label: 'Contact', onClick: () => scrollTo('contact') },
-          ]}
-          panelHeight={68}
-          baseItemSize={54}
-          magnification={80}
-        />
-      </div>
+      {/* Mobile Navigation Dock */}
+      {!showSplash && isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 z-[100] flex justify-center bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 py-2">
+          <MagicNav 
+            items={[
+              { id: '1', icon: <VscHome size={22} />, label: 'Home', href: '#home' },
+              { id: '2', icon: <VscBriefcase size={22} />, label: 'Work', href: '#services' },
+              { id: '3', icon: <VscCode size={22} />, label: 'Code', href: '#playground' },
+              { id: '4', icon: <VscLayers size={22} />, label: 'Team', href: '#identity' },
+              { id: '5', icon: <VscMail size={22} />, label: 'Mail', href: '#contact' },
+            ]}
+          />
+        </div>
+      )}
     </main>
   );
 }

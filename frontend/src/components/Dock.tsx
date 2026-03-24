@@ -76,7 +76,7 @@ function DockItem({
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center rounded-full bg-black/60 backdrop-blur-md border-[#0065FF]/20 border shadow-lg group-hover:border-[#0065FF]/50 transition-colors duration-300 ${className}`}
+      className={`relative inline-flex items-center justify-center rounded-full bg-white/[0.03] backdrop-blur-3xl border border-white/10 hover:border-[#0065FF]/50 hover:bg-[#0065FF]/20 hover:shadow-[0_0_20px_rgba(0,101,255,0.4)] transition-all duration-150 group/dock-item ${className}`}
       tabIndex={0}
       role="button"
       aria-haspopup="true"
@@ -132,16 +132,37 @@ type DockIconProps = {
   isHovered?: MotionValue<number>;
 };
 
-function DockIcon({ children, className = '' }: DockIconProps) {
-  return <div className={`flex items-center justify-center ${className}`}>{children}</div>;
+function DockIcon({ children, className = '', isHovered }: DockIconProps) {
+  const defaultHovered = useMotionValue(0);
+  const motionValue = isHovered || defaultHovered;
+
+  const scale = useSpring(
+    useTransform(motionValue, [0, 1], [1, 1.2]),
+    { stiffness: 600, damping: 20 }
+  );
+  
+  const color = useTransform(
+    motionValue,
+    [0, 1],
+    ['#ffffff', '#0065FF']
+  );
+
+  return (
+    <motion.div
+      style={{ scale, color }}
+      className={`flex items-center justify-center ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export default function Dock({
   items,
   className = '',
-  spring = { mass: 0.1, stiffness: 150, damping: 12 },
+  spring = { mass: 0.05, stiffness: 350, damping: 20 },
   magnification = 70,
-  distance = 200,
+  distance = 140,
   panelHeight = 64,
   baseItemSize = 50
 }: DockProps) {
@@ -158,7 +179,7 @@ export default function Dock({
         onMouseLeave={() => {
           mouseX.set(Infinity);
         }}
-        className={`${className} flex items-start w-fit gap-3 rounded-[24px] border-[#0065FF]/20 border bg-[#000510]/60 backdrop-blur-2xl pt-3 px-4 shadow-[0_0_50px_-12px_rgba(0,101,255,0.2)] pointer-events-auto transition-all duration-500`}
+        className={`${className} flex items-start w-fit gap-3 rounded-[32px] border-[#0065FF]/30 border bg-[#000510]/40 backdrop-blur-[30px] pt-3 px-4 shadow-[0_0_80px_-10px_rgba(0,101,255,0.3),inset_0_0_20px_rgba(0,101,255,0.1)] pointer-events-auto transition-all duration-200`}
         style={{ height: panelHeight }}
         role="toolbar"
         aria-label="Application dock"
