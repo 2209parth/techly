@@ -9,6 +9,7 @@ const googleSansCode = Google_Sans_Code({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.tech-ly.in"),
   title: "Techly — Best IT Company in Ahmedabad & Bhavnagar | Web & App Development",
   description: "Techly is a leading IT solutions provider in Ahmedabad and Bhavnagar, specializing in AI-based web and app development, custom software, SEO, and digital growth for businesses and startups.",
   keywords: [
