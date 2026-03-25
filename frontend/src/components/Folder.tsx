@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface FolderProps {
   color?: string;
@@ -34,9 +34,7 @@ const Folder: React.FC<FolderProps> = ({ color = '#0065FF', size = 1, items = []
 
   const [open, setOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [paperOffsets, setPaperOffsets] = useState<{ x: number; y: number }[]>(
-    Array.from({ length: maxItems }, () => ({ x: 0, y: 0 }))
-  );
+  const paperRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const folderBackColor = darkenColor(color, 0.15);
   const paperBackgrounds = [
@@ -49,7 +47,12 @@ const Folder: React.FC<FolderProps> = ({ color = '#0065FF', size = 1, items = []
     e.stopPropagation();
     setOpen(prev => !prev);
     if (open) {
-      setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+      paperRefs.current.forEach(ref => {
+        if (ref) {
+          ref.style.setProperty('--paper-x', '0px');
+          ref.style.setProperty('--paper-y', '0px');
+        }
+      });
     }
   };
 
@@ -60,19 +63,20 @@ const Folder: React.FC<FolderProps> = ({ color = '#0065FF', size = 1, items = []
     const centerY = rect.top + rect.height / 2;
     const offsetX = (e.clientX - centerX) * 0.08;
     const offsetY = (e.clientY - centerY) * 0.08;
-    setPaperOffsets(prev => {
-      const newOffsets = [...prev];
-      newOffsets[index] = { x: offsetX, y: offsetY };
-      return newOffsets;
-    });
+    
+    const paper = paperRefs.current[index];
+    if (paper) {
+      paper.style.setProperty('--paper-x', `${offsetX}px`);
+      paper.style.setProperty('--paper-y', `${offsetY}px`);
+    }
   };
 
   const handlePaperMouseLeave = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
-    setPaperOffsets(prev => {
-      const newOffsets = [...prev];
-      newOffsets[index] = { x: 0, y: 0 };
-      return newOffsets;
-    });
+    const paper = paperRefs.current[index];
+    if (paper) {
+      paper.style.setProperty('--paper-x', '0px');
+      paper.style.setProperty('--paper-y', '0px');
+    }
     setHoveredIndex(null);
   };
 
@@ -128,12 +132,13 @@ const Folder: React.FC<FolderProps> = ({ color = '#0065FF', size = 1, items = []
             const sizeClasses = open ? 'w-[160px] h-[160px]' : 'w-[90%] h-[75%]';
 
             const transformStyle = open
-              ? `${getOpenTransform(i)} translate(${paperOffsets[i].x}px, ${paperOffsets[i].y}px)${getHoverTransform(i)}`
+              ? `${getOpenTransform(i)} translate(var(--paper-x, 0px), var(--paper-y, 0px))${getHoverTransform(i)}`
               : undefined;
 
             return (
               <div
                 key={i}
+                ref={el => { paperRefs.current[i] = el; }}
                 onMouseMove={e => handlePaperMouseMove(e, i)}
                 onMouseEnter={() => open && setHoveredIndex(i)}
                 onMouseLeave={e => handlePaperMouseLeave(e, i)}

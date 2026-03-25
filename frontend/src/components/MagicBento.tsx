@@ -392,6 +392,8 @@ const GlobalSpotlight: React.FC<{
     document.body.appendChild(spotlight);
     spotlightRef.current = spotlight;
 
+    let hoveredCards: NodeListOf<Element> | null = null;
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!spotlightRef.current || !gridRef.current) return;
 
@@ -401,7 +403,10 @@ const GlobalSpotlight: React.FC<{
         rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
 
       isInsideSection.current = mouseInside || false;
-      const cards = gridRef.current.querySelectorAll('.card');
+      
+      if (!hoveredCards) {
+        hoveredCards = gridRef.current.querySelectorAll('.card');
+      }
 
       if (!mouseInside) {
         gsap.to(spotlightRef.current, {
@@ -409,7 +414,7 @@ const GlobalSpotlight: React.FC<{
           duration: 0.3,
           ease: 'power2.out'
         });
-        cards.forEach(card => {
+        hoveredCards.forEach(card => {
           (card as HTMLElement).style.setProperty('--glow-intensity', '0');
         });
         return;
@@ -418,7 +423,7 @@ const GlobalSpotlight: React.FC<{
       const { proximity, fadeDistance } = calculateSpotlightValues(spotlightRadius);
       let minDistance = Infinity;
 
-      cards.forEach(card => {
+      hoveredCards.forEach(card => {
         const cardElement = card as HTMLElement;
         const cardRect = cardElement.getBoundingClientRect();
         const centerX = cardRect.left + cardRect.width / 2;

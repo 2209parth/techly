@@ -46,7 +46,7 @@ void mainImage(out vec4 o, vec2 C) {
   vec3 O = vec3(0.), p, S;
   o = vec4(0.);
 
-  for (vec2 r = iResolution.xy, Q; i < 60.; i++) {
+  for (vec2 r = iResolution.xy, Q; i < 30.; i++) {
     p = z*normalize(vec3(C-.5*r,r.y)); 
     p.z -= 4.; 
     S = p;
@@ -118,7 +118,7 @@ export const Plasma = ({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2)
+      dpr: Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 1.5)
     });
     const gl = renderer.gl;
     const canvas = gl.canvas;
@@ -178,8 +178,10 @@ export const Plasma = ({
     setSize();
 
     let raf = 0;
+    let isVisible = true;
     const t0 = performance.now();
     const loop = (t: number) => {
+      if (!isVisible) return;
       const timeValue = (t - t0) * 0.001;
       if (direction === 'pingpong') {
         const pingpongDuration = 10;
@@ -188,7 +190,7 @@ export const Plasma = ({
         const u = segmentTime / pingpongDuration;
         const smooth = u * u * (3 - 2 * u);
         const pingpongTime = isForward ? smooth * pingpongDuration : (1 - smooth) * pingpongDuration;
-        (program.uniforms.uDirection.value as { value: number }) = 1.0 as any; // Hack for TypeScript if needed, but OGL is flexible
+        (program.uniforms.uDirection.value as { value: number }) = 1.0 as any;
         program.uniforms.iTime.value = pingpongTime;
       } else {
         program.uniforms.iTime.value = timeValue;
@@ -196,9 +198,22 @@ export const Plasma = ({
       renderer.render({ scene: mesh });
       raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
+
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          raf = requestAnimationFrame(loop);
+        } else {
+          cancelAnimationFrame(raf);
+        }
+      },
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(containerEl);
 
     return () => {
+      visibilityObserver.disconnect();
       cancelAnimationFrame(raf);
       ro.disconnect();
       if (mouseInteractive) {

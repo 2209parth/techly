@@ -323,7 +323,7 @@ await app.deploy({
             </div>
 
             {/* AI Chat & Suggestion - Bottom Right */}
-            <div className={`fixed ${isMobile ? 'bottom-24 right-5' : 'bottom-10 right-10'} z-50 flex flex-col items-end gap-3 md:gap-4 transition-all duration-500 w-[calc(100vw-40px)] md:w-auto`}>
+            <div className={`fixed ${isMobile ? 'bottom-32 right-5' : 'bottom-10 right-10'} z-[110] flex flex-col items-end gap-3 md:gap-4 transition-all duration-500 w-[calc(100vw-40px)] md:w-auto`}>
                {/* Chat Window */}
                {isChatOpen && (
                  <div className="w-full md:w-[450px] h-[70vh] md:h-[600px] bg-[#050505]/80 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-left animate-in zoom-in-95 fade-in slide-in-from-bottom-10 origin-bottom-right duration-300">
