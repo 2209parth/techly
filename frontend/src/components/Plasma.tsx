@@ -116,7 +116,7 @@ export const Plasma = ({
 
     const getOptimalDPR = () => {
       const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
-      if (navigator.deviceMemory && navigator.deviceMemory < 4) return 1;
+      if ((navigator as any).deviceMemory && (navigator as any).deviceMemory < 4) return 1;
       if (/iPhone|iPad|Android/.test(navigator.userAgent)) return 1;
       return Math.min(dpr, 1.2);
     };

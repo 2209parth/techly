@@ -131,6 +131,23 @@ const ParticleCard: React.FC<{
   const particlesInitialized = useRef(false);
   const magnetismAnimationRef = useRef<gsap.core.Tween | null>(null);
 
+  const particlePool = useRef<HTMLDivElement[]>([]);
+  const activeParticles = useRef<Set<HTMLDivElement>>(new Set());
+
+  const releaseParticle = useCallback((particle: HTMLDivElement) => {
+    activeParticles.current.delete(particle);
+    particlePool.current.push(particle);
+  }, []);
+
+  const getParticleFromPool = useCallback(() => {
+    let particle = particlePool.current.pop();
+    if (!particle) {
+      particle = createParticleElement(0, 0, glowColor);
+    }
+    activeParticles.current.add(particle);
+    return particle;
+  }, [glowColor]);
+
   const initializeParticles = useCallback(() => {
     if (particlesInitialized.current || !cardRef.current) return;
 
@@ -159,24 +176,7 @@ const ParticleCard: React.FC<{
       });
     });
     particlesRef.current = [];
-  }, []);
-
-  const particlePool = useRef<HTMLDivElement[]>([]);
-  const activeParticles = useRef<Set<HTMLDivElement>>(new Set());
-
-  const getParticleFromPool = useCallback(() => {
-    let particle = particlePool.current.pop();
-    if (!particle) {
-      particle = createParticleElement(0, 0, glowColor);
-    }
-    activeParticles.current.add(particle);
-    return particle;
-  }, [glowColor]);
-
-  const releaseParticle = useCallback((particle: HTMLDivElement) => {
-    activeParticles.current.delete(particle);
-    particlePool.current.push(particle);
-  }, []);
+  }, [releaseParticle]);
 
   const animateParticles = useCallback(() => {
     if (!cardRef.current || !isHoveredRef.current) return;
@@ -219,7 +219,7 @@ const ParticleCard: React.FC<{
 
       timeoutsRef.current.push(timeoutId);
     });
-  }, [initializeParticles]);
+  }, [initializeParticles, getParticleFromPool]);
 
   useEffect(() => {
     if (disableAnimations || !cardRef.current) return;

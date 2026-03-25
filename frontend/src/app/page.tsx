@@ -5,14 +5,10 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link'; // Added Link import
 import Image from 'next/image';
 const Plasma = dynamic(() => import('@/components/Plasma'), { ssr: false });
-import DecryptedText from '@/components/DecryptedText';
 import SplashScreen from '@/components/SplashScreen';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import MagicNav from '@/components/MagicNav';
-import MagicBento from '@/components/MagicBento';
-import TiltedCard from '@/components/TiltedCard';
 import CardSwap, { Card } from '@/components/CardSwap';
-import Dock from '@/components/Dock';
 import LiquidDock from '@/components/LiquidDock';
 import ProfileCard from '@/components/ProfileCard';
 import WhyUs from '@/components/WhyUs';
@@ -36,7 +32,15 @@ import {
   Rocket
 } from 'lucide-react';
 import { FaGithub, FaTwitter, FaLinkedinIn } from 'react-icons/fa6';
-import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse, VscDeviceMobile, VscRobot, VscGraphLine, VscPackage, VscEdit, VscLink, VscGithub, VscSymbolMethod, VscSymbolColor } from 'react-icons/vsc';
+import { VscHome, VscCode, VscMail, VscLayers, VscBriefcase, VscPulse, VscDeviceMobile, VscRobot, VscGraphLine, VscPackage, VscEdit, VscLink, VscSymbolColor } from 'react-icons/vsc';
+
+// Declare the type for PWA install prompt
+declare global {
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+}
 
 // Hook for window size
 function useWindowSize() {
@@ -61,7 +65,15 @@ function useWindowSize() {
   return windowSize;
 }
 
-const teamMembers = [
+type TeamMember = {
+  name: string;
+  role: string;
+  description: string;
+  imageSrc: string;
+  icons: React.ReactElement[];
+};
+
+const teamMembers: TeamMember[] = [
   {
     name: "Parth",
     role: "FOUNDER",
@@ -88,7 +100,6 @@ const teamMembers = [
 export default function Home() {
   const { width: windowWidth } = useWindowSize();
   const isMobile = windowWidth < 1024;
-  const isTablet = windowWidth >= 768 && windowWidth < 1024;
 
   const [showSplash, setShowSplash] = useState(true);
 
@@ -135,12 +146,12 @@ export default function Home() {
   };
 
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -195,7 +206,7 @@ export default function Home() {
       } else {
         setContactStatus('error');
       }
-    } catch (error) {
+    } catch {
       setContactStatus('error');
     } finally {
       setIsSubmittingContact(false);
@@ -268,12 +279,9 @@ await app.deploy({
                 setConsoleLogs(prev => [...prev, { type: 'success', message: '→ [OUTPUT] Hello, World!' }]);
             } else if (codeToRun.includes('app.deploy')) {
                 setConsoleLogs(prev => [...prev, { type: 'success', message: '→ [DEPLOY] Success: Digital Experience live at dev-preview.techly.ai' }]);
-                // eslint-disable-next-line no-eval
-                const result = eval(codeToRun);
-                setConsoleLogs(prev => [...prev, { type: 'success', message: `→ Result: ${result}` }]);
             }
-        } catch (e: any) {
-            setConsoleLogs(prev => [...prev, { type: 'error', message: `→ Error: ${e.message}` }]);
+        } catch (e: unknown) {
+            setConsoleLogs(prev => [...prev, { type: 'error', message: `→ Error: ${e instanceof Error ? e.message : 'Unknown error'}` }]);
         }
     }, 500);
   };
@@ -731,7 +739,7 @@ await app.deploy({
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
-            {teamMembers.map((member: any, i: number) => (
+            {teamMembers.map((member: TeamMember, i: number) => (
               <ProfileCard
                 key={i}
                 name={member.name}

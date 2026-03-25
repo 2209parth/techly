@@ -123,7 +123,7 @@ export const LiquidBlob = ({ color = '#0065FF' }: LiquidBlobProps) => {
     };
 
     const isLowEnd = 
-      !navigator.deviceMemory || navigator.deviceMemory < 4 ||
+      !(navigator as any).deviceMemory || (navigator as any).deviceMemory < 4 ||
       /iPhone|iPad|Android/.test(navigator.userAgent);
 
     const renderer = new Renderer({ 
