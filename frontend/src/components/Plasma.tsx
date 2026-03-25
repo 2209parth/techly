@@ -46,7 +46,7 @@ void mainImage(out vec4 o, vec2 C) {
   vec3 O = vec3(0.), p, S;
   o = vec4(0.);
 
-  for (vec2 r = iResolution.xy, Q; i < 30.; i++) {
+  for (vec2 r = iResolution.xy, Q; i < 15.; i++) {
     p = z*normalize(vec3(C-.5*r,r.y)); 
     p.z -= 4.; 
     S = p;
@@ -114,11 +114,18 @@ export const Plasma = ({
 
     const directionMultiplier = direction === 'backward' ? -1.0 : 1.0;
 
+    const getOptimalDPR = () => {
+      const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+      if (navigator.deviceMemory && navigator.deviceMemory < 4) return 1;
+      if (/iPhone|iPad|Android/.test(navigator.userAgent)) return 1;
+      return Math.min(dpr, 1.2);
+    };
+
     const renderer = new Renderer({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 1.5)
+      dpr: getOptimalDPR()
     });
     const gl = renderer.gl;
     const canvas = gl.canvas;
@@ -148,8 +155,13 @@ export const Plasma = ({
 
     const mesh = new Mesh(gl, { geometry, program });
 
+    let mouseThrottleTimeout: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
       if (!mouseInteractive || !containerRef.current) return;
+      if (mouseThrottleTimeout) return;
+      mouseThrottleTimeout = window.setTimeout(() => {
+        mouseThrottleTimeout = null;
+      }, 16); // ~60fps
       const rect = containerRef.current.getBoundingClientRect();
       mousePos.current.x = e.clientX - rect.left;
       mousePos.current.y = e.clientY - rect.top;

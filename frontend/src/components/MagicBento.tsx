@@ -154,10 +154,28 @@ const ParticleCard: React.FC<{
         ease: 'back.in(1.7)',
         onComplete: () => {
           particle.parentNode?.removeChild(particle);
+          releaseParticle(particle);
         }
       });
     });
     particlesRef.current = [];
+  }, []);
+
+  const particlePool = useRef<HTMLDivElement[]>([]);
+  const activeParticles = useRef<Set<HTMLDivElement>>(new Set());
+
+  const getParticleFromPool = useCallback(() => {
+    let particle = particlePool.current.pop();
+    if (!particle) {
+      particle = createParticleElement(0, 0, glowColor);
+    }
+    activeParticles.current.add(particle);
+    return particle;
+  }, [glowColor]);
+
+  const releaseParticle = useCallback((particle: HTMLDivElement) => {
+    activeParticles.current.delete(particle);
+    particlePool.current.push(particle);
   }, []);
 
   const animateParticles = useCallback(() => {
@@ -167,17 +185,20 @@ const ParticleCard: React.FC<{
       initializeParticles();
     }
 
-    memoizedParticles.current.forEach((particle, index) => {
+    const maxParticles = 50;
+    if (activeParticles.current.size > maxParticles) return;
+
+    memoizedParticles.current.forEach((_, index) => {
       const timeoutId = setTimeout(() => {
-        if (!isHoveredRef.current || !cardRef.current) return;
+        if (!isHoveredRef.current || !cardRef.current || activeParticles.current.size > maxParticles) return;
 
-        const clone = particle.cloneNode(true) as HTMLDivElement;
-        cardRef.current.appendChild(clone);
-        particlesRef.current.push(clone);
+        const particle = getParticleFromPool();
+        cardRef.current.appendChild(particle);
+        particlesRef.current.push(particle);
 
-        gsap.fromTo(clone, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' });
+        gsap.fromTo(particle, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' });
 
-        gsap.to(clone, {
+        gsap.to(particle, {
           x: (Math.random() - 0.5) * 100,
           y: (Math.random() - 0.5) * 100,
           rotation: Math.random() * 360,
@@ -187,7 +208,7 @@ const ParticleCard: React.FC<{
           yoyo: true
         });
 
-        gsap.to(clone, {
+        gsap.to(particle, {
           opacity: 0.3,
           duration: 1.5,
           ease: 'power2.inOut',

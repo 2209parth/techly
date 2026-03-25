@@ -115,11 +115,30 @@ export const LiquidBlob = ({ color = '#0065FF' }: LiquidBlobProps) => {
     if (!containerRef.current) return;
     const container = containerRef.current;
 
-    const renderer = new Renderer({ alpha: true, antialias: true, dpr: 2 });
+    const getOptimalDPR = () => {
+      const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+      if ((navigator as any).deviceMemory && (navigator as any).deviceMemory < 4) return 1;
+      if (/iPhone|iPad|Android/.test(navigator.userAgent)) return 1;
+      return Math.min(dpr, 1.5);
+    };
+
+    const isLowEnd = 
+      !navigator.deviceMemory || navigator.deviceMemory < 4 ||
+      /iPhone|iPad|Android/.test(navigator.userAgent);
+
+    const renderer = new Renderer({ 
+      alpha: true, 
+      antialias: false, 
+      dpr: getOptimalDPR() 
+    });
     const gl = renderer.gl;
     container.appendChild(gl.canvas);
 
-    const geometry = new Sphere(gl, { radius: 1, widthSegments: 64, heightSegments: 64 });
+    const geometry = new Sphere(gl, { 
+      radius: 1, 
+      widthSegments: isLowEnd ? 32 : 64, 
+      heightSegments: isLowEnd ? 32 : 64 
+    });
     const program = new Program(gl, {
       vertex,
       fragment,
@@ -143,7 +162,9 @@ export const LiquidBlob = ({ color = '#0065FF' }: LiquidBlobProps) => {
     resize();
 
     let raf: number;
+    let isVisible = true;
     const update = (t: number) => {
+      if (!isVisible) return;
       program.uniforms.uTime.value = t * 0.001;
       mesh.rotation.y += 0.01;
       renderer.render({ scene: mesh });
@@ -151,7 +172,22 @@ export const LiquidBlob = ({ color = '#0065FF' }: LiquidBlobProps) => {
     };
     raf = requestAnimationFrame(update);
 
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && !raf) {
+          raf = requestAnimationFrame(update);
+        } else if (!isVisible) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      },
+      { threshold: 0 }
+    );
+    visibilityObserver.observe(container);
+
     return () => {
+      visibilityObserver.disconnect();
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(raf);
       if (gl.canvas.parentNode === container) {

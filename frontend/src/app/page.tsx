@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link'; // Added Link import
+import Image from 'next/image';
 const Plasma = dynamic(() => import('@/components/Plasma'), { ssr: false });
 import DecryptedText from '@/components/DecryptedText';
 import SplashScreen from '@/components/SplashScreen';
@@ -310,7 +311,7 @@ await app.deploy({
 
       {/* Fixed Logo - Top Left */}
       <Link href="/" className="fixed top-6 md:top-10 left-6 md:left-12 z-[60] hover:opacity-80 transition-opacity drop-shadow-2xl">
-         <img src="/reallogo.png" alt="Techly Logo" className="h-10 md:h-16 w-auto" />
+         <Image src="/reallogo.png" alt="Techly Logo" width={64} height={64} className="h-10 md:h-16 w-auto" priority />
       </Link>
 
       {/* Hero Section */}
@@ -338,24 +339,26 @@ await app.deploy({
               </p>
                      <div className="flex flex-wrap items-center justify-center gap-8 mb-8">
                   <button 
-                   onClick={() => setIsChatOpen(true)}
+                   onClick={handleInstallApp}
                    className="flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-[#0065FF] text-white text-sm md:text-base font-black rounded-2xl hover:bg-[#0055dd] transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl shadow-[#0065FF]/40"
                   >
-                     Free Counseling
+                     Download Our Android App
                      <div className="bg-white/20 p-1 rounded-lg">
-                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                       <VscDeviceMobile size={18} strokeWidth={2} />
                      </div>
                   </button>
 
-                  <button 
-                   onClick={handleInstallApp}
-                   className="flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-white/5 backdrop-blur-xl border border-white/10 text-white text-sm md:text-base font-black rounded-2xl hover:bg-white/10 transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl ml-0 md:ml-4 mt-4 md:mt-0"
+                  <a 
+                   href="https://wa.me/qr/DQ7TF7WJZW5OI1"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-white/5 backdrop-blur-xl border border-white/10 text-white text-sm md:text-base font-black rounded-2xl hover:bg-[#25D366]/20 hover:border-[#25D366]/40 transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl ml-0 md:ml-4 mt-4 md:mt-0 group"
                   >
-                     Download App
-                     <div className="bg-white/10 p-1 rounded-lg">
-                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                     WhatsApp
+                     <div className="bg-white/10 p-1 rounded-lg group-hover:bg-[#25D366] transition-colors">
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="group-hover:stroke-white transition-colors"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 11-7.6-13.4 8.38 8.38 0 013.8.9L21 3z"/></svg>
                      </div>
-                  </button>
+                  </a>
               </div>
             </div>
 
@@ -939,7 +942,7 @@ await app.deploy({
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-               <img src="/reallogo.png" alt="Techly Logo" className="h-8 w-auto" />
+               <Image src="/reallogo.png" alt="Techly Logo" width={32} height={32} className="h-8 w-auto" />
                <span className="text-xl font-black tracking-tighter text-white uppercase italic">Techly</span>
             </div>
             <p className="text-gray-500 text-sm leading-relaxed">
