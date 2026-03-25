@@ -134,6 +134,33 @@ export default function Home() {
   };
 
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) {
+      alert("To install the Techly App:\n1. Open this site in Chrome or Edge.\n2. Look for the 'Install' icon in the address bar or menu.");
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    }
+    setDeferredPrompt(null);
+  };
   const [chatMessages, setChatMessages] = useState([
     { role: 'ai', content: "Hello! I'm Techly's intelligent assistant. How can I help you build your digital experience today?" }
   ]);
@@ -317,6 +344,16 @@ await app.deploy({
                      Free Counseling
                      <div className="bg-white/20 p-1 rounded-lg">
                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                     </div>
+                  </button>
+
+                  <button 
+                   onClick={handleInstallApp}
+                   className="flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-white/5 backdrop-blur-xl border border-white/10 text-white text-sm md:text-base font-black rounded-2xl hover:bg-white/10 transition-all transform hover:scale-[1.05] active:scale-95 shadow-2xl ml-0 md:ml-4 mt-4 md:mt-0"
+                  >
+                     Download App
+                     <div className="bg-white/10 p-1 rounded-lg">
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
                      </div>
                   </button>
               </div>
