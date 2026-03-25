@@ -86,7 +86,7 @@ const teamMembers = [
 
 export default function Home() {
   const { width: windowWidth } = useWindowSize();
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth < 1024;
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
 
   const [showSplash, setShowSplash] = useState(true);
